@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>МЕДУЗАМ УЧУН</title>
+<style>
+/* iOS Tizim Shriftlari va Asosiy Sozlamalar */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    color: #ffffff;
+    background-color: #0b0f19;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Huzurbaxsh Realistik Orqa Fon (Yuklanishi Aniq Bo'lgan Rasm) */
+.bg-container {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: brightness(0.55) contrast(1.05);
+    transform: scale(1.03);
+    animation: slowMotion 25s infinite alternate ease-in-out;
+}
+
+@keyframes slowMotion {
+    from { transform: scale(1.03) translateY(0); }
+    to { transform: scale(1.08) translateY(-8px); }
+}
+
+.bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgba(11, 15, 25, 0.3) 0%, rgba(11, 15, 25, 0.75) 100%);
+}
+
+.app-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 440px; /* iPhone O'lchami */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* iOS Glassmorphism (Shaffoflik & Blur) */
+.glass-card {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 30px;
+    padding: 24px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+}
+
+.page {
+    position: absolute;
+    inset: 0;
+    padding: 24px 20px 35px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px) scale(0.97);
+    transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+}
+
+.page.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+
+/* iOS Style Tugmalar */
+.ios-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 20px;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    margin-top: 14px;
+}
+
+.ios-btn:active {
+    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.ios-btn.secondary {
+    background: rgba(0, 0, 0, 0.28);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Typografiya */
+.hero-title {
+    font-size: 30px;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: 1.5px;
+    margin-bottom: 18px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.text-body {
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: -0.2px;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+/* Interactive Canvas */
+.canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    touch-action: none;
+    border-radius: 24px;
+}
+
+/* Textarea / Input */
+.ios-input {
+    width: 100%;
+    min-height: 100px;
+    padding: 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(15px);
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    resize: none;
+    margin-top: 14px;
+    font-family: inherit;
+}
+
+.ios-input::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* Ruchkada Yozilish Effekti */
+.handwritten-container {
+    position: relative;
+    padding: 10px 5px;
+}
+
+.handwritten {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #f8fafc;
+    white-space: pre-wrap;
+    border-left: 2px solid rgba(255, 255, 255, 0.6);
+    padding-left: 12px;
+    min-height: 220px;
+}
+
+.pen-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 16px;
+    background: #ff758c;
+    animation: blink 0.7s infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.nav-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-container"></div>
+<div class="bg-overlay"></div>
+
+<div class="app-container">
+
+    <!-- 1-SAHIFA: KIRISH -->
+    <div class="page active" id="p1">
+        <div class="glass-card">
+            <h1 class="hero-title">МЕДУЗАМ УЧУН</h1>
+            <p class="text-body" style="text-align: center; margin-bottom: 15px;">
+                Ҳаётим, бу гапни сенга кўп айтаман. Керак бўлса, мана ҳозир ҳам айтаман. Сени борлигинг учун минглаб минг шукр! Сени мен нимага ўхшатаман биласанми? Қоронғи йўлда қўлимдаги чироққа ўхшатаман.
+            </p>
+            <p class="text-body" style="text-align: center; font-weight: 600; margin-bottom: 20px; color: #ffb6c1;">
+                Бугунги кичик бир саёҳатга тайёрмисан?
+            </p>
+            <button class="ios-btn" onclick="goTo('p2')">Босиш</button>
+        </div>
+    </div>
+
+    <!-- 2-SAHIFA: 15 QATORLI SHIRIN JUMLA -->
+    <div class="page" id="p2">
+        <div class="glass-card" style="max-height: 85vh; overflow-y: auto;">
+            <p class="text-body" style="font-size: 15px; line-height: 1.8;">
+                1. Сенинг биргина табассуминг бутун дунёмни ёритишга қодир, менинг ширин ва ягонам.<br>
+                2. Ҳар сафар овозингни эшитганимда қалбимда ажойиб бир хотиржамлик пайдо бўлади.<br>
+                3. Сендаги бегуборлик ва самимият мен учун энг катта бойликдир.<br>
+                4. Сени эркалаш, эркаликларингни кўтариш мен учун энг ёқимли машғулот.<br>
+                5. Сен шунчаки ёнимда бўлсанг ҳам, дунёнинг энг бахтли инсонига айланаман.<br>
+                6. Медузам, сенинг борлигинг ҳаётимга мазмун ва гўзаллик бағишлайди.<br>
+                7. Кўзларингдаги порлаш менга куч ва чексиз қувонч беради.<br>
+                8. Сен билан ўтказган ҳар бир сониям мен учун қадрли ва унутилмасдир.<br>
+                9. Сен менинг кўнглимга чироқ ёққан, қалбимга яқин ягона инсонимсан.<br>
+                10. Сени хурсанд кўриш, юзингда табассум кўриш менинг энг катта мақсадим.<br>
+                11. Сендаги ҳар бир жараён, ҳар бир қилиқ менга жуда ҳам ёқади.<br>
+                12. Сен шунчалик бетакрорсанki, сенга бўлган меҳрим кундан-кунга ортиб бораверади.<br>
+                13. Кунинг қандай ўтмасин, ёнингда сени авайлайдиган инсонинг борлигини унутма.<br>
+                14. Сен менинг энг ширин ва энг азиз меҳрибонимсан.<br>
+                15. Доимо шундай кўзлари порлаб турадиган, самимий ва бахтли бўлиб юр!
+            </p>
+            <button class="ios-btn" onclick="goTo('p3')" style="margin-top: 20px;">Кейинги саҳифа</button>
+        </div>
+    </div>
+
+    <!-- 3-SAHIFA: SEKINLASHGAN MAYDA ZARRACHALI YURAKCHA -->
+    <div class="page" id="p3">
+        <div class="glass-card" style="text-align: center;">
+            <p class="text-body" style="font-weight: 600; margin-bottom: 5px;">Бу ўйин эсингдами?</p>
+            <div class="canvas-wrap">
+                <canvas id="heartCanvas" width="320" height="320"></canvas>
+            </div>
+            <p class="text-body" style="font-size: 13px; opacity: 0.8; margin-bottom: 15px;">
+                Майда заррачалардан иборат юракчани бармоғинг билан секин суриб кўр, у майин сочилиб тушади ва қўлингни олсанг оҳиста қайта йиғилади...
+            </p>
+            <button class="ios-btn" onclick="goTo('p4')">Кейинги босқич</button>
+        </div>
+    </div>
+
+    <!-- 4-SAHIFA: SAVOLLAR CONTAINER -->
+    <div class="page" id="p4">
+        <div class="glass-card">
+            <div id="quizContainer">
+                <!-- Javascript orqali yuklanadi -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 5-SAHIFA: RUCHKADA YOZILISH EFFEKTI (KRILL) -->
+    <div class="page" id="p5">
+        <div class="glass-card">
+            <div class="handwritten-container">
+                <span class="handwritten" id="handwrittenText"></span><span class="pen-cursor" id="penCursor"></span>
+            </div>
+            <button class="ios-btn" id="toFinalBtn" style="display: none; margin-top: 20px;" onclick="goTo('p6')">Сўнгги сўз</button>
+        </div>
+    </div>
+
+    <!-- 6-SAHIFA: SO'NGGI SO'Z -->
+    <div class="page" id="p6">
+        <div class="glass-card" style="text-align: center;">
+            <h2 class="hero-title" style="font-size: 24px; color: #ffb6c1;">Сўнгги сўз...</h2>
+            <p class="text-body" style="line-height: 1.8; margin-bottom: 20px;">
+                Медузам, ҳаётимдаги ҳар бир кун сен билан чиройли.<br>
+                Нимa бўлишидан қатъи назар, биз биргамиз ва бир-биримизни тушунамиз.<br>
+                Сен менинг энг қадрли ва энг азиз инсонимсан.<br>
+                Сени жуда ҳам яхши кўраман.<br>
+                Ҳамиша табассум қилиб юр!
+            </p>
+            <button class="ios-btn" onclick="goTo('p1')">Бошига қайтиш</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const BOT_TOKEN = "8906712907:AAHz1l5YZiovJihrA0d0NKemnF7oEjHsDsY";
+const CHAT_ID = "6818528455";
+
+// Navigatsiya
+function goTo(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+
+    if(pageId === 'p3') {
+        initHeartCanvas();
+    }
+    if(pageId === 'p5') {
+        startTyping();
+    }
+}
+
+// Telegramga Avto-Yuborish
+function sendTelegram(question, answer) {
+    const text = `<b>Yangi Javob (Farzand Tarbiyasi):</b>\n\n<b>Q:</b> ${question}\n<b>A:</b> ${answer}`;
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: "HTML" })
+    }).catch(e => console.error(e));
+}
+
+/* SAVOLLAR RO'YXATI */
+const questions = [
+    { q: "1. Тарбияда энг муҳим нарса нима деб ўйлайсиз?", choices: ["Меҳр ва эътибор", "Интизом ва тартиб", "Шахсий намуна", "Суҳбат ва дўстлик"] },
+    { q: "2. Фарзанд хато қилса, биринчи муносабат қандай бўлиши керак?", choices: ["Босиқлик билан тушунтириш", "Хатосини ўзига англатиш", "Жазолаш", "Бироз кутиб кейин гаплашиш"] },
+    { q: "3. Бўш вақтни фарзанд билан қандай ўтказган маъқул?", choices: ["Ўйинлар ўйнаб", "Китоб ўқиб", "Саёҳат қилиб", "Суҳбатлашиб"] },
+    { q: "4. Фарзандда қайси хислатни кўришни хоҳлайсиз?", choices: ["Ростгўйлик", "Меҳрибонлик", "Кучли ирода", "Оқиллик"] },
+    { q: "5. Ота-онанинг ўзаро муносабати тарбияга таъсир қиладими?", choices: ["Албатта, жуда катта", "Бироз таъсир қилади", "Фақат яхши кайфиятда", "Натижасига боғлиқ"] },
+    
+    { q: "6. Фарзанд келажакда ким бўлишини хоҳлайсиз ва нега?", text: true },
+    { q: "7. Фарзандга қандай исм қўйишни хоҳлар эдингиз?", text: true },
+    { q: "8. Фарзандингиз сиздан нимани ўрганишини хоҳлайсиз?", text: true },
+    { q: "9. Фарзанд қайси ёшдан бошлаб эркин фикрлаши керак?", text: true },
+    { q: "10. Сизнингча, яхши она/ота бўлиш учун нима қилиш керак?", text: true },
+    { q: "11. Фарзанд жанжаллашиб қолса, қандай йўл тутасиз?", text: true },
+    { q: "12. Фарзанднинг қайси қобилиятини биринчи ривожлантирган бўлардингиз?", text: true },
+    { q: "13. Фарзанд билан ўртада сир бўлиши керакми?", text: true },
+    { q: "14. Фарзанд учун энг катта совға нима?", text: true },
+    { q: "15. Келажакдаги фарзандингизга ҳозирдан қандай тилак билдирасиз?", text: true }
+];
+
+let currentQ = 0;
+
+function renderQuestion() {
+    const container = document.getElementById("quizContainer");
+    const item = questions[currentQ];
+    
+    let html = `<p class="text-body" style="font-size:13px; opacity:0.7;">Савол ${currentQ + 1} / 15</p>`;
+    html += `<h3 style="font-size:18px; margin: 10px 0 15px 0; font-weight:600;">${item.q}</h3>`;
+
+    if(item.choices) {
+        item.choices.forEach(c => {
+            html += `<button class="ios-btn secondary" style="font-size:14px; margin-bottom:8px;" onclick="answerChoice('${c}')">${c}</button>`;
+        });
+    } else {
+        html += `<textarea id="txtAnswer" class="ios-input" placeholder="Жавобингизни ёзинг..."></textarea>`;
+        html += `<button class="ios-btn" onclick="answerText()">Жавобни юбориш</button>`;
+    }
+
+    html += `<div class="nav-row">`;
+    if(currentQ > 0) {
+        html += `<button class="ios-btn secondary" style="flex:1;" onclick="prevQ()">Орқага</button>`;
+    }
+    html += `</div>`;
+
+    container.innerHTML = html;
+}
+
+function answerChoice(val) {
+    sendTelegram(questions[currentQ].q, val);
+    nextQ();
+}
+
+function answerText() {
+    const val = document.getElementById("txtAnswer").value.trim();
+    if(!val) return;
+    sendTelegram(questions[currentQ].q, val);
+    nextQ();
+}
+
+function nextQ() {
+    if(currentQ < questions.length - 1) {
+        currentQ++;
+        renderQuestion();
+    } else {
+        goTo('p5');
+    }
+}
+
+function prevQ() {
+    if(currentQ > 0) {
+        currentQ--;
+        renderQuestion();
+    }
+}
+
+renderQuestion();
+
+/* SEKINLASHGAN ASABNI TINCHLANTIRUVCHI YURAK CANVAS */
+let canvasInitialized = false;
+function initHeartCanvas() {
+    if(canvasInitialized) return;
+    canvasInitialized = true;
+
+    const canvas = document.getElementById("heartCanvas");
+    const ctx = canvas.getContext("2d");
+    
+    let particles = [];
+    const numParticles = 600; 
+    let touchX = null, touchY = null;
+
+    function heartFunction(t) {
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+        return { x: x * 7.5 + canvas.width/2, y: y * 7.5 + canvas.height/2 - 10 };
+    }
+
+    for (let i = 0; i < numParticles; i++) {
+        let t = Math.PI * 2 * (i / numParticles);
+        let pos = heartFunction(t);
+        let innerFactor = Math.sqrt(Math.random());
+        let x = canvas.width/2 + (pos.x - canvas.width/2) * innerFactor;
+        let y = (canvas.height/2 - 10) + (pos.y - (canvas.height/2 - 10)) * innerFactor;
+
+        particles.push({
+            baseX: x,
+            baseY: y,
+            x: x,
+            y: y,
+            vx: 0,
+            vy: 0,
+            color: `hsl(${340 + Math.random()*25}, 100%, ${65 + Math.random()*25}%)`,
+            size: Math.random() * 1.8 + 0.8
+        });
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+            if (touchX !== null && touchY !== null) {
+                let dx = p.x - touchX;
+                let dy = p.y - touchY;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 75) {
+                    let angle = Math.atan2(dy, dx);
+                    let force = (75 - dist) / 75;
+                    // Sekinlashtirilgan zarba kuchi (3.5 o'rniga 8 edi)
+                    p.vx += Math.cos(angle) * force * 2.5;
+                    p.vy += Math.sin(angle) * force * 2.5;
+                }
+            }
+
+            // Sekinroq va muloyim qaytib yig'ilish (0.025 va 0.90 inertsiya)
+            p.vx += (p.baseX - p.x) * 0.025;
+            p.vy += (p.baseY - p.y) * 0.025;
+            p.vx *= 0.90;
+            p.vy *= 0.90;
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    function setTouch(e) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        touchX = touch.clientX - rect.left;
+        touchY = touch.clientY - rect.top;
+    }
+
+    function clearTouch() {
+        touchX = null;
+        touchY = null;
+    }
+
+    canvas.addEventListener("touchstart", setTouch);
+    canvas.addEventListener("touchmove", setTouch);
+    canvas.addEventListener("touchend", clearTouch);
+    canvas.addEventListener("mousedown", setTouch);
+    canvas.addEventListener("mousemove", (e) => { if(e.buttons === 1) setTouch(e); });
+    canvas.addEventListener("mouseup", clearTouch);
+}
+
+/* RUCHKADA YOZILISH EFFEKTI (KRILL) */
+const fullText = `Ҳаётим биламан, сен билан кўп уришамиз, кўп аразлашамиз, аммо лекин бу бизни ажралиб кетишимизга сабаб бўлолмайди биласанми?
+
+Чунки «ўхшатмасдан учратмас» деган гап бор биласанми? Менга сенга, сенга менга ўхшаш жиҳатларимиз жуда ҳам кўп.
+
+Мен сенинг эркалигингни, кулишингни, хуллас сендаги ҳамма-ҳамма хислатларни яхши кўраман. Бунимасан доим ўзингни асраб авайла.`;
+
+let typingStarted = false;
+function startTyping() {
+    if(typingStarted) return;
+    typingStarted = true;
+
+    const el = document.getElementById("handwrittenText");
+    const btn = document.getElementById("toFinalBtn");
+    const cursor = document.getElementById("penCursor");
+    let index = 0;
+
+    function type() {
+        if (index < fullText.length) {
+            el.textContent += fullText.charAt(index);
+            index++;
+            setTimeout(type, 55);
+        } else {
+            cursor.style.display = "none";
+            btn.style.display = "block";
+        }
+    }
+    type();
+}
+</script>
+</body>
+</html>
